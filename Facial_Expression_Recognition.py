@@ -6,7 +6,6 @@ from torch.utils.data import DataLoader
 
 import time
 
-# Veri dönüşümleri
 transform = {
     'train': transforms.Compose([
         transforms.Resize((224, 224)),
@@ -33,24 +32,19 @@ test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 
 print(f"Train setinde {len(train_dataset)} örnek, Test setinde {len(test_dataset)} örnek var.")
 
-# Cihaz ayarı
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Çalıştırma cihazı: {device}")
 
-# Model tanımlama ve transfer learning için hazır model kullanımı
 print("Model hazırlanıyor...")
 
 model = models.resnet18(weights=models.ResNet18_Weights.DEFAULT)
 num_ftrs = model.fc.in_features
-model.fc = nn.Linear(num_ftrs, len(train_dataset.classes))  # sınıf sayısına göre çıktı katmanı
-
+model.fc = nn.Linear(num_ftrs, len(train_dataset.classes))  
 model = model.to(device)
 
-# Kayıp fonksiyonu ve optimizasyon
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
-# Eğitim fonksiyonu
 def train(model, loader, criterion, optimizer, device):
     model.train()
     running_loss = 0.0
@@ -80,7 +74,6 @@ def train(model, loader, criterion, optimizer, device):
     print(f"Epoch tamamlandı - Train Loss: {epoch_loss:.4f} - Train Acc: {epoch_acc:.2f}%")
     return epoch_loss, epoch_acc
 
-# Test fonksiyonu
 def test(model, loader, criterion, device):
     model.eval()
     test_loss = 0.0
@@ -107,7 +100,6 @@ def test(model, loader, criterion, device):
     print(f"Test tamamlandı - Test Loss: {epoch_loss:.4f} - Test Acc: {epoch_acc:.2f}%")
     return epoch_loss, epoch_acc
 
-# Eğitim döngüsü
 num_epochs = 5
 for epoch in range(num_epochs):
     print(f"\nEpoch {epoch+1}/{num_epochs} başlıyor...")
@@ -121,6 +113,5 @@ for epoch in range(num_epochs):
 
 print("Eğitim ve test tamamlandı.")
 
-# Modelin ağırlıklarını kaydetmek
 torch.save(model.state_dict(), "resnet18_facial_expression.pth")
 print("Model kaydedildi.")
